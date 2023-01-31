@@ -6,8 +6,10 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+	"os"
+	"context"
 
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -21,18 +23,26 @@ func randSeq(n int) string {
 }
 
 func main() {
+	ctx := context.Background()
 	rand.Seed(time.Now().UnixNano())
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPort := os.Getenv("REDIS_PORT")
+	redisPW := os.Getenv("REDIS_PASSWORD")
+
+	redisAddress := fmt.Sprintf("%s:%s", redisHost, redisPort)
+	log.Printf(redisAddress)
+	log.Printf("Version %s", "1.0.0")
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
-		Password: "",
-		DB:       0,
+		Addr:	  redisAddress,
+		Password: redisPW, // no password set
+		DB:		  0,  // use default DB
 	})
 
 	key := randSeq(8)
 	log.Printf("key set as %s", key)
 
-	pong, err := client.Ping().Result()
+	pong, err := client.Ping(ctx).Result()
 	log.Println(pong, err)
 
 	handlers := CounterHandlers{
@@ -41,9 +51,15 @@ func main() {
 	}
 
 	http.HandleFunc("/", hello)
-	http.HandleFunc("/increment", handlers.Increment)
-	http.HandleFunc("/decrement", handlers.Decrement)
-	http.HandleFunc("/count", handlers.Count)
+	http.HandleFunc("/increment", func(w http.ResponseWriter, r *http.Request) {
+		handlers.Increment(ctx, w, r)
+	})
+	http.HandleFunc("/decrement", func(w http.ResponseWriter, r *http.Request) {
+		handlers.Decrement(ctx, w, r)
+	})
+	http.HandleFunc("/count", func(w http.ResponseWriter, r *http.Request) {
+		handlers.Count(ctx, w, r)
+	})
 
 	log.Println("Starting http server on :8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
@@ -56,8 +72,8 @@ type CounterHandlers struct {
 	key    string
 }
 
-func (h CounterHandlers) Increment(w http.ResponseWriter, r *http.Request) {
-	val, err := h.client.Incr(h.key).Result()
+func (h CounterHandlers) Increment(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	val, err := h.client.Incr(ctx, h.key).Result()
 	if err != nil {
 		log.Printf("error incrementing %v", err)
 		http.Error(w, "error incrementing", http.StatusInternalServerError)
@@ -66,8 +82,8 @@ func (h CounterHandlers) Increment(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Incremented count to %d", val)
 }
 
-func (h CounterHandlers) Decrement(w http.ResponseWriter, r *http.Request) {
-	val, err := h.client.Decr(h.key).Result()
+func (h CounterHandlers) Decrement(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	val, err := h.client.Decr(ctx, h.key).Result()
 	if err != nil {
 		log.Printf("error deccrementing %v", err)
 		http.Error(w, "error deccrementing", http.StatusInternalServerError)
@@ -76,8 +92,8 @@ func (h CounterHandlers) Decrement(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Decremented count to %d", val)
 }
 
-func (h CounterHandlers) Count(w http.ResponseWriter, r *http.Request) {
-	val, err := h.client.Get(h.key).Result()
+func (h CounterHandlers) Count(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	val, err := h.client.Get(ctx, h.key).Result()
 	if err != nil {
 		log.Printf("error retreiving value %v", err)
 		http.Error(w, "error retrieving value", http.StatusInternalServerError)
