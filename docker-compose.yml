@@ -1,26 +1,18 @@
 version: '3.8'
 services:
-  cache:
-    image: redis:6.2-alpine
-    restart: always
-    ports:
-      - 6379
-    command: redis-server --save 20 1 --loglevel warning
-    volumes: 
-      - .:/app
   api:
     build: ./
     depends_on:
-      - cache
+      - redis
     ports:
       - 8080:8080
-    environment:
-      NODE_ENV: production
-      REDIS_HOST: cache
-      REDIS_PORT: 6379
-    links:
-      - cache
     volumes:
       - .:/app
-
     command: CompileDaemon -build='go build -o /usr/local/bin/app' -command='/usr/local/bin/app'
+
+  redis:
+    image: redis
+    ports:
+      - 6379
+    volumes: 
+      - .:/app
