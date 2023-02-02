@@ -27,7 +27,7 @@ Thank you!
 2) Run a redis server and the go application locally without containerization. This is to simply see if the code to be contained and deployed is able to compile.
 3) Resolve any code bugs to get the application up and running with the redis server locally.
 4) Create a ```docker-compose.yml``` file to be able to test the container cluster locally and make sure redis and the app run as expected in the cluster environment. Based the docker compose file on [this documentation](https://www.okteto.com/docs/reference/compose/ ).
-5) Set up my local Okteto environment for the project: CLI installation, Okteto context, and Okteto manifest based on the docker-compose.yml file.
+5) Set up my local Okteto environment for the project: CLI installation, Okteto context, and Okteto manifest based on the ```docker-compose.yml``` file.
     - Ran into an error specifying that a host volume was needed. I followed the reference [here](https://www.okteto.com/docs/reference/compose/#volumes-string-optional) as well.
 6) Deploy the container cluster to the Okteto Cloud with ```okteto up``` and confirm the application works from the namespace's endpoint.
     - At this point, I realized that the syncing of files, recompiling the code, and restarting the server were not all done by the Okteto CLI alone.
@@ -62,7 +62,7 @@ I was able to get the demo running in Okteto with the following steps:
     }
     ```
 
-3) Create a docker-compose.yml file in your project root directory. We will set up the two services, the api and redis server, following the Okteto Docker Compose Reference documentation [here](https://www.okteto.com/docs/reference/compose/)
+3) Create a ```docker-compose.yml``` file in your project root directory. We will set up the two services, the api and redis server, following the Okteto Docker Compose Reference documentation [here](https://www.okteto.com/docs/reference/compose/)
     - ```version```: The first field can be the docker-compose version you are trying to use. It is optional but it is always a good practice to lock in a version of the different libraries and software you use to prevent breaking changes with any unexpected future updates. In this case version 3.8 worked well so I locked it in the file. 
     - ```services```: Then we weill begin the services block which you can learn more about [here](https://www.okteto.com/docs/reference/compose/#services-object-optional). Here is where we will have two separate blocks, each block for one of our services. The api block, and the redis block.
 
@@ -123,7 +123,7 @@ I was able to get the demo running in Okteto with the following steps:
                     file: docker-compose.yml
         ```
     
-    - For the ```dev``` section you can find more information [here](https://www.okteto.com/docs/reference/manifest/#dev-object-optional). This is where we define how our development containers will be started when we run ```okteto up``` in the following steps. For this section we must create a block only for the api service since the redis container won't be customized and we can rely on the docker-compose.yml initialization of the basic Redis container:
+    - For the ```dev``` section you can find more information [here](https://www.okteto.com/docs/reference/manifest/#dev-object-optional). This is where we define how our development containers will be started when we run ```okteto up``` in the following steps. For this section we must create a block only for the api service since the redis container won't be customized and we can rely on the ```docker-compose.yml``` initialization of the basic Redis container:
         - [command](https://www.okteto.com/docs/reference/manifest/#command-string-optional): This is the command that will be run to start up the development environment. We need CompileDaemon to run here so that it restarts the server whenever a file changes.
         - [sync](https://www.okteto.com/docs/reference/manifest/#sync-string-required): This field specified which folder will be synced in the develoment environment running in the Okteto cloud. We will specify the same directory where our files live so we can make changes that are reflected in the Okteto cloud.
         - [forward](https://www.okteto.com/docs/reference/manifest/#forward-string-optional): Here we will specify the local port forwarding to the remote port so that the api service can be accessed by traffic outside the cluster network.
