@@ -24,7 +24,7 @@ Thank you!
 ### What would your next steps be after reading their email and responding?
 
 1) Fork the repo and clone it locally.
-2) Run a redis server and the go application locally, without containerization simply to see if the code to be contained is properly compiling.
+2) Run a redis server and the go application locally without containerization. This is to simply see if the code to be contained and deployed is able to compile.
 3) Resolve any code bugs to get the application up and running with the redis server locally.
 4) Create a docker-compose.yml file to be able to test the container cluster locally and make sure redis and the app run as expected in the cluster environment. Based the docker compose file on this documentation: https://www.okteto.com/docs/reference/compose/ 
 5) Set up my local Okteto environment for the project: CLI installation, Okteto context, and Okteto manifest based on the docker-compose.yml file.
