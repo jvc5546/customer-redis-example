@@ -63,20 +63,39 @@ I was able to get the demo running in Okteto with the following steps:
     ```
 
 3) Create a docker-compose.yml file in your project root directory. We will set up the two services, the api and redis server, following the Okteto Docker Compose Reference documentation [here](https://www.okteto.com/docs/reference/compose/)
-    - version: The first field can be the docker-compose version you are trying to use. I think it is always a good practice to lock in a version of the different libraries and software you use to prevent breaking changes with any future updates. In this case version 3.8 worked well so I locked it in the file. 
-    - services: Then we weill begin the services block which you can learn more about [here](https://www.okteto.com/docs/reference/compose/#services-object-optional). Here is where we will have two separate blocks, each block for one of our services. The api block, and the redis block.
+    - ```version```: The first field can be the docker-compose version you are trying to use. It is optional but it is always a good practice to lock in a version of the different libraries and software you use to prevent breaking changes with any unexpected future updates. In this case version 3.8 worked well so I locked it in the file. 
+    - ```services```: Then we weill begin the services block which you can learn more about [here](https://www.okteto.com/docs/reference/compose/#services-object-optional). Here is where we will have two separate blocks, each block for one of our services. The api block, and the redis block.
 
     For the api service:
-    - build: For the api service we need to specify that it will be built using a Dockerfile, so we need to add the [build field](https://www.okteto.com/docs/reference/compose/#build-stringobject-optional). Since our Dockerfile is in the same directory as the ockerfile-compose.yml file, we can simply use the relative path approach. By default, docker-compose looks for the file named Dockerfile so we do not need to specify a file name.
-    - depend_on: Since the api service depends on the redis service which we will define in a bit, we can specify that with the [depends_on field](https://www.okteto.com/docs/reference/compose/#depends_on-stringobject-optional). We can rely on the default condition of service_started and leave this field blank, but you can change it if you need a more specific dependency condition.
-    - ports: We also want access to the api service from outside of the cluster network, so we can forward the network port 8080 to the host port 8080, which will allow outside traffic to the api service. You can find details of the [port field here](https://www.okteto.com/docs/reference/compose/#ports-int-optional).
-    - volumes: We need to specify a volume for this service which will also serve as our host volume (the volume okteto will use to sync files between your local environment and Okteto Cloud). More information regarding the volumes can be found [here](https://www.okteto.com/docs/reference/compose/#volumes-string-optional).
-    - command: To get as much value as possible from Okteto, I was able to find an approach that can recompile and restart the Go server on the Okteto Cloud as you make and save changes in your local computer. This required the use of a Go package [CompileDaemon](https://github.com/githubnemo/CompileDaemon) and using it as the command to start up the api Go server. There are two ways to write out the command field that can be found [here](https://www.okteto.com/docs/reference/compose/#command-string-optional).
+    - ```build```: For the api service we need to specify that it will be built using a Dockerfile, so we need to add the [build field](https://www.okteto.com/docs/reference/compose/#build-stringobject-optional). Since our Dockerfile is in the same directory as the ockerfile-compose.yml file, we can simply use the relative path approach. By default, docker-compose looks for the file named Dockerfile so we do not need to specify a file name.
+    - ```depend_on```: Since the api service depends on the redis service which we will define in a bit, we can specify that with the [depends_on field](https://www.okteto.com/docs/reference/compose/#depends_on-stringobject-optional). We can rely on the default condition of service_started and leave this field blank, but you can change it if you need a more specific dependency condition.
+    - ```ports```: We also want access to the api service from outside of the cluster network, so we can forward the network port 8080 to the host port 8080, which will allow outside traffic to the api service. You can find details of the [port field here](https://www.okteto.com/docs/reference/compose/#ports-int-optional).
+    - ```volumes```: We need to specify a volume for this service which will also serve as our host volume (the volume okteto will use to sync files between your local environment and Okteto Cloud). More information regarding the volumes can be found [here](https://www.okteto.com/docs/reference/compose/#volumes-string-optional).
+    - ```command```: To get as much value as possible from Okteto, I was able to find an approach that can recompile and restart the Go server on the Okteto Cloud as you make and save changes in your local computer. This required the use of a Go package [CompileDaemon](https://github.com/githubnemo/CompileDaemon) and using it as the command to start up the api Go server. There are two ways to write out the command field that can be found [here](https://www.okteto.com/docs/reference/compose/#command-string-optional).
+    ```
+      api:
+        build: ./
+        depends_on:
+          - redis
+        ports:
+          - 8080:8080
+        volumes:
+          - .:/app
+        command: CompileDaemon -build='go build -o /usr/local/bin/app' -command='/usr/local/bin/app'
+    ```
     
     For the redis service:
-    - image: Instead of the build field, we can use this field to pull in a redis image from the docker public repository. For simplicity I didn't specify a version for this image but I would recommend locking in the version to prevent future breaking changes with updates to this image in the docker public repository. More information on this field [here](https://www.okteto.com/docs/reference/compose/#image-string-optional)
-    - ports: Since we only want access to this service from the cluster network and not give access to outside traffic, we can simply specify the redis port without forwarding it to the host port. More information on this field [here](https://www.okteto.com/docs/reference/compose/#ports-int-optional)
-    - volumes: I was working in a limited storage environment, so I re-used the same volume as the api service. However, if you'd like to keep the redis data on a separate volume, feel free to specify a different volume based on the information [here](https://www.okteto.com/docs/reference/compose/#volumes-string-optional).
+    - ```image```: Instead of the build field, we can use this field to pull in a redis image from the docker public repository. For simplicity I didn't specify a version for this image but I would recommend locking in the version to prevent future breaking changes with updates to this image in the docker public repository. More information on this field [here](https://www.okteto.com/docs/reference/compose/#image-string-optional)
+    - ```ports```: Since we only want access to this service from the cluster network and not give access to outside traffic, we can simply specify the redis port without forwarding it to the host port. More information on this field [here](https://www.okteto.com/docs/reference/compose/#ports-int-optional)
+    - ```volumes```: I was working in a limited storage environment, so I re-used the same volume as the api service. However, if you'd like to keep the redis data on a separate volume, feel free to specify a different volume based on the information [here](https://www.okteto.com/docs/reference/compose/#volumes-string-optional).
+    ```
+      redis:
+        image: redis
+        ports:
+          - 6379
+        volumes: 
+          - .:/app
+    ```
 
 4) Now some small updates need to occur in the Dockerfile to match the CompileDaemon approach. 
     - For the RUN command currently on line 5, we can instead run the go installation of the CompileDaemon so that our container has the package installed with the following ```RUN go install -mod=mod github.com/githubnemo/CompileDaemon```
