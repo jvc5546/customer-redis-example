@@ -26,21 +26,21 @@ Thank you!
 1) Fork the repo and clone it locally.
 2) Run a redis server and the go application locally without containerization. This is to simply see if the code to be contained and deployed is able to compile.
 3) Resolve any code bugs to get the application up and running with the redis server locally.
-4) Create a docker-compose.yml file to be able to test the container cluster locally and make sure redis and the app run as expected in the cluster environment. Based the docker compose file on this documentation: https://www.okteto.com/docs/reference/compose/ 
+4) Create a ```docker-compose.yml``` file to be able to test the container cluster locally and make sure redis and the app run as expected in the cluster environment. Based the docker compose file on [this documentation](https://www.okteto.com/docs/reference/compose/ ).
 5) Set up my local Okteto environment for the project: CLI installation, Okteto context, and Okteto manifest based on the docker-compose.yml file.
-    - Ran into an error specifying that a host volume was needed. I followed the reference here as well https://www.okteto.com/docs/reference/compose/#volumes-string-optional
-6) Deploy the container cluster to the Okteto Cloud in and make sure the application works from the namespace's endpoint.
+    - Ran into an error specifying that a host volume was needed. I followed the reference [here](https://www.okteto.com/docs/reference/compose/#volumes-string-optional) as well.
+6) Deploy the container cluster to the Okteto Cloud with ```okteto up``` and confirm the application works from the namespace's endpoint.
     - At this point, I realized that the syncing of files, recompiling the code, and restarting the server were not all done by the Okteto CLI alone.
-    - Okteto was properly syncing the files, but the Go application was not updated on the Cloud cluster. Figured out that a third party library was necessary (like Nodemon for Node) that will recompile, and restart the Go server when a change occurs. Found that [CompileDaemon](https://github.com/githubnemo/CompileDaemon) is a common tool for Go applications, but did see that there were a few different tools and would be happy to learn about those as well.
-7) Update the build commands to make sure that the application restarts on file changes in the Okteto Cloud.
+    - Okteto was properly syncing the files, but the Go server was not updated on the Cloud cluster. I Figured out that a third party library was necessary (like Nodemon for Node) that will recompile, and restart the Go server when a change occurs. Found that [CompileDaemon](https://github.com/githubnemo/CompileDaemon) is a common tool for Go applications, but did see that there were a few different tools and would be happy to learn about those as well.
+7) Update the commands to start up the container with CompileDaemon based on this [documentation](https://www.okteto.com/docs/reference/compose/#command-string-optional). And make sure that the application restarts on file changes in the Okteto Cloud.
 
 ### Summarize what work was needed for completing the demo for the customer.
 "Hi Alice,
 
 I was able to get the demo running in Okteto with the following steps:
-1) The Go application code needs a few changes to properly work with Redis. Specifically, the Redis client package was updated to github.com/redis/go-redis/v9. So you need to install that package with ```go get github.com/redis/go-redis/v9```
+1) The Go application code needs a few changes to properly work with Redis. Specifically, the Redis client package was updated to **github.com/redis/go-redis/v9**. So you need to install that package with ```go get github.com/redis/go-redis/v9```
 
-2) The redis package installed on step 1 requires the application's context as one of the arguments for the following redis client API: Ping, Incr, Decr, and Get. So the endpoint handlers were slighly updated so they could receive the 'context' as an argument when invoked by the main function.
+2) The redis client installed on step 1 requires the application's 'context' as one of the arguments for the following API: **Ping, Incr, Decr, and Get**. So the endpoint handlers were slighly updated so they could receive the 'context' as an argument when invoked by the main function.
 
 3) Create a docker-compose.yml file in your project root directory. We will set up the two services, the api and redis server, following the Okteto Docker Compose Reference documentation [here](https://www.okteto.com/docs/reference/compose/)
     - version: The first field can be the docker-compose version you are trying to use. I think it is always a good practice to lock in a version of the different libraries and software you use to prevent breaking changes with any future updates. In this case version 3.8 worked well so I locked it in the file. 
@@ -131,7 +131,7 @@ The output should look similar to the following, which means that you are ready 
 
 Please let me know if you have additional questions or if you run into any issues implementing the services.
 
-Additionally, I would recommend going over the [docker-compose healthcheck](https://www.okteto.com/docs/reference/compose/#healthcheck-object-optional) and the [okteto probes](https://www.okteto.com/docs/reference/manifest/#probes-boolean-optional) documentation if you are interested in making sure that containers are up and running as expected. Also, fine tuning the services might provide a lot of value for your organization. These settings provided [here](https://www.okteto.com/docs/reference/manifest/#resources-object-optional) in the Okteto manifest can help with that if you do choose to performance test the application to determine the best settings. Let me know if you need any help with these as well. Thank you!
+Additionally, I would recommend going over the [docker-compose healthcheck](https://www.okteto.com/docs/reference/compose/#healthcheck-object-optional) and the [okteto probes](https://www.okteto.com/docs/reference/manifest/#probes-boolean-optional) documentation if you are interested in making sure that containers are up and running as expected. Also, fine tuning the services might provide a lot of value for your organization. These settings provided [here](https://www.okteto.com/docs/reference/manifest/#resources-object-optional) in the Okteto manifest can help with that if you do choose to performance test the application to determine the best settings. Let me know if you need any help with these as well. Thank you!"
 
 ### What improvments can Okteto make to better support this, or similar, customers in the future.
 Okteto is an amazing service, it makes development so much easier to test! A few recommendations I would make after going through the assessment are the following:
