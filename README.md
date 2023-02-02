@@ -40,7 +40,27 @@ Thank you!
 I was able to get the demo running in Okteto with the following steps:
 1) The Go application code needs a few changes to properly work with Redis. Specifically, the Redis client package was updated to **github.com/redis/go-redis/v9**. So you need to install that package with ```go get github.com/redis/go-redis/v9```
 
-2) The redis client installed on step 1 requires the application's 'context' as one of the arguments for the following API: **Ping, Incr, Decr, and Get**. So the endpoint handlers were slighly updated so they could receive the 'context' as an argument when invoked by the main function.
+2) The redis client installed on step 1 requires the application's 'context' as one of the arguments for the following API: **Ping, Incr, Decr, and Get**. So the endpoint handlers were slighly updated so they could receive the 'context' as an argument when invoked by the main function. For example, in the following code block, you can see the variable **ctx** as the context being passed to the **Ping** API and down to the handlers to pass on to the rest of the redis API.
+    ```
+    func main() {
+        ctx := context.Background()
+        .
+        .
+        .
+
+        pong, err := client.Ping(ctx).Result()
+        .
+        .
+        .
+        http.HandleFunc("/increment", func(w http.ResponseWriter, r *http.Request) {
+            handlers.Increment(ctx, w, r)
+        })
+        })
+        .
+        .
+        .
+    }
+    ```
 
 3) Create a docker-compose.yml file in your project root directory. We will set up the two services, the api and redis server, following the Okteto Docker Compose Reference documentation [here](https://www.okteto.com/docs/reference/compose/)
     - version: The first field can be the docker-compose version you are trying to use. I think it is always a good practice to lock in a version of the different libraries and software you use to prevent breaking changes with any future updates. In this case version 3.8 worked well so I locked it in the file. 
