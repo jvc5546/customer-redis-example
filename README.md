@@ -124,9 +124,9 @@ I was able to get the demo running in Okteto with the following steps:
         ```
     
     - For the ```dev``` section you can find more information [here](https://www.okteto.com/docs/reference/manifest/#dev-object-optional). This is where we define how our development containers will be started when we run ```okteto up``` in the following steps. For this section we must create a block only for the api service since the redis container won't be customized and we can rely on the ```docker-compose.yml``` initialization of the basic Redis container:
-        - [command](https://www.okteto.com/docs/reference/manifest/#command-string-optional): This is the command that will be run to start up the development environment. We need CompileDaemon to run here so that it restarts the server whenever a file changes.
-        - [sync](https://www.okteto.com/docs/reference/manifest/#sync-string-required): This field specified which folder will be synced in the develoment environment running in the Okteto cloud. We will specify the same directory where our files live so we can make changes that are reflected in the Okteto cloud.
-        - [forward](https://www.okteto.com/docs/reference/manifest/#forward-string-optional): Here we will specify the local port forwarding to the remote port so that the api service can be accessed by traffic outside the cluster network.
+        - ```command```: You can find more information about this section [here](https://www.okteto.com/docs/reference/manifest/#command-string-optional). This is the command that will be run to start up the development environment. We need CompileDaemon to run here so that it restarts the server whenever a file changes.
+        - ```sync```: You can find more inoformation about this section [here](https://www.okteto.com/docs/reference/manifest/#sync-string-required). This field specified which folder will be synced in the develoment environment running in the Okteto cloud. We will specify the same directory where our files live so we can make changes that are reflected in the Okteto cloud.
+        - ```forward```: You can find more inoformation about this section [here](https://www.okteto.com/docs/reference/manifest/#forward-string-optional). Here we will specify the local port forwarding to the remote port so that the api service can be accessed by traffic outside the cluster network.
         ```
             dev:
                 api:
