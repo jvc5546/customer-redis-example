@@ -98,8 +98,8 @@ I was able to get the demo running in Okteto with the following steps:
     ```
 
 4) Now some small updates need to occur in the Dockerfile to match the CompileDaemon approach. 
-    - For the RUN command currently on line 5, we can instead run the go installation of the CompileDaemon so that our container has the package installed with the following ```RUN go install -mod=mod github.com/githubnemo/CompileDaemon```
-    - Then, we can update the CMD command on line 8 to use this new approach to starting up the Go server ```CompileDaemon -command='/usr/local/bin/app'```
+    - For the ```RUN``` command currently on line 5, we can instead run the Go installation of the CompileDaemon package. The command for the package installation is the following: ```RUN go install -mod=mod github.com/githubnemo/CompileDaemon```
+    - Then, we can update the CMD command on line 8 to use the CompileDaemon approach that will start up the Go server ```CompileDaemon -command='/usr/local/bin/app'```
 
 5) Create the [Okteto manifest](https://www.okteto.com/docs/reference/manifest/). This will give you the ability to further customize your Okteto build, deployment, and development environments.
     - Create a new file with the name ```okteto.yml```. This is our Okteto manifest.
