@@ -6,7 +6,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -25,18 +24,13 @@ func randSeq(n int) string {
 func main() {
 	ctx := context.Background()
 	rand.Seed(time.Now().UnixNano())
-	redisHost := os.Getenv("REDIS_HOST")
-	redisPort := os.Getenv("REDIS_PORT")
-	redisPW := os.Getenv("REDIS_PASSWORD")
 
-	redisAddress := fmt.Sprintf("%s:%s", redisHost, redisPort)
-	log.Printf(redisAddress)
-	log.Printf("Version %s", "1.0.0")
+	redisAddress := fmt.Sprintf("%s:%v", "redis", 6379)
 
 	client := redis.NewClient(&redis.Options{
 		Addr:     redisAddress,
-		Password: redisPW, // no password set
-		DB:       0,       // use default DB
+		Password: "", // no password set
+		DB:       0,  // use default DB
 	})
 
 	key := randSeq(8)
