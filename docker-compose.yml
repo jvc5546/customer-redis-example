@@ -7,13 +7,9 @@ services:
       - 6379
     command: redis-server --save 20 1 --loglevel warning
     volumes: 
-      - cache:/data
+      - .:/app
   api:
-    container_name: go-api
-    build:
-      context: ./
-      # target: production
-    image: go-api
+    build: ./
     depends_on:
       - cache
     ports:
@@ -25,7 +21,6 @@ services:
     links:
       - cache
     volumes:
-      - ./:/src
-volumes:
-  cache:
-    driver: local
+      - .:/app
+
+    command: CompileDaemon -build='go build -o /usr/local/bin/app' -command='/usr/local/bin/app'

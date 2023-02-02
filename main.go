@@ -1,13 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
-	"time"
 	"os"
-	"context"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -34,9 +34,9 @@ func main() {
 	log.Printf("Version %s", "1.0.0")
 
 	client := redis.NewClient(&redis.Options{
-		Addr:	  redisAddress,
+		Addr:     redisAddress,
 		Password: redisPW, // no password set
-		DB:		  0,  // use default DB
+		DB:       0,       // use default DB
 	})
 
 	key := randSeq(8)
@@ -111,7 +111,7 @@ func hello(w http.ResponseWriter, r *http.Request) {
 		<title>Welcome</title>
 	</head>
 	<body>
-		<h1>Welcome to the Redis Example</h1>
+		<h1>Welcome to the Redis Example.</h1>
 		<p>You can increment the stored count at <a href="/increment">/increment</a></p>
 		<p>You can decrement the stored count at <a href="/decrement">/decrement</a></p>
 		<p>You can retrieve the stored count at <a href="/count">/count</a></p>
