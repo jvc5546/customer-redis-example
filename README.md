@@ -116,7 +116,7 @@ I was able to get the demo running in Okteto with the following steps:
         ```
     NOTE: We do not need to build a custom image for our Redis service, so it's not needed in this section.
 
-    - For the ```deploy``` section you can find more information [here](https://www.okteto.com/docs/reference/manifest/#deploy-string-optional). Here we define how our services will be deployed. In our case, we will be using the docker-compose.yml file as our instructions for deployment. We will follow the specific documentation regarding docker-compose deployment, which can be found [here](https://www.okteto.com/docs/reference/manifest/#deploy-a-docker-compose-file). So we can complete the section as follows:
+    - For the ```deploy``` section you can find more information [here](https://www.okteto.com/docs/reference/manifest/#deploy-string-optional). In this section we define how our services will be deployed. In our case, we will be using the ```docker-compose.yml``` file as our instructions for deployment. We will follow the specific documentation regarding docker-compose deployment, which can be found [here](https://www.okteto.com/docs/reference/manifest/#deploy-a-docker-compose-file). So we can complete the section as follows:
         ```
             deploy:
                 compose:
