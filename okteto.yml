@@ -1,0 +1,72 @@
+name: customer-redis-example
+
+# The build section defines how to build the images of your development environment
+# More info: https://www.okteto.com/docs/reference/manifest/#build
+build:
+
+  # You can use the following env vars to refer to this image in your deploy commands:
+  #  - OKTETO_BUILD_API_REGISTRY: image registry
+  #  - OKTETO_BUILD_API_REPOSITORY: image repo
+  #  - OKTETO_BUILD_API_IMAGE: image name
+  #  - OKTETO_BUILD_API_SHA: image tag sha256
+  api:
+    context: .
+    dockerfile: Dockerfile
+
+  # You can use the following env vars to refer to this image in your deploy commands:
+  #  - OKTETO_BUILD_CACHE_REGISTRY: image registry
+  #  - OKTETO_BUILD_CACHE_REPOSITORY: image repo
+  #  - OKTETO_BUILD_CACHE_IMAGE: image name
+  #  - OKTETO_BUILD_CACHE_SHA: image tag sha256
+  cache: ""
+
+  # You can use the following env vars to refer to this image in your deploy commands:
+  #  - OKTETO_BUILD__REGISTRY: image registry
+  #  - OKTETO_BUILD__REPOSITORY: image repo
+  #  - OKTETO_BUILD__IMAGE: image name
+  #  - OKTETO_BUILD__SHA: image tag sha256
+# The deploy section defines how to deploy your development environment
+# More info: https://www.okteto.com/docs/reference/manifest/#deploy
+deploy:
+  compose:
+    file: docker-compose.yml
+
+# The dependencies section defines other git repositories to be deployed as part of your development environment
+# More info: https://www.okteto.com/docs/reference/manifest/#dependencies
+# dependencies:
+#   - https://github.com/okteto/sample
+
+
+# The dev section defines how to activate a development container
+# More info: https://www.okteto.com/docs/reference/manifest/#dev
+dev:
+  api:
+    command:
+      - CompileDaemon
+      - -build=go build -o /usr/local/bin/app
+      - -command=/usr/local/bin/app
+    sync:
+      - .:/app
+    forward:
+      - 8080:8080
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
+  cache:
+    image: okteto/golang:1
+    command: bash
+    workdir: /data
+    securityContext:
+      capabilities:
+        add:
+          - SYS_PTRACE
+    sync:
+      - .:/data
+    forward:
+      - 2345:2345
+      - 6379:6379
+    volumes:
+      - /go/pkg/
+      - /root/.cache/go-build/
+
